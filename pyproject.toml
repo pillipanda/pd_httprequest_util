@@ -1,10 +1,10 @@
 [tool.poetry]
 name = "pd_httprequest_util"
-version = "0.0.9"
+version = "0.1.0"
 description = "http request util with both sync/async method.provide with concurrency control；iter retrn；log"
 license = "MIT"
 authors = ["彭泗雄 <pillipanda@126.com>"]
-readme = "PYPI_README.md"
+readme = "README.md"
 homepage = "https://github.com/pillipanda/pd_httprequest_util"
 repository = "https://github.com/pillipanda/pd_httprequest_util"
 

@@ -1,1 +1,1 @@
-from .main import HttpReqer
+from .main import HttpConnection

@@ -1,6 +1,9 @@
 from pd_httprequest_util.request import Request
 from pd_httprequest_util.request_manager import AsyncRequestManager
-from pd_httprequest_util.connection.async_ import AsyncHttp
+from pd_httprequest_util.connection.async_ import AsyncConnection
+
+from demos.config import valid_url, invalid_url
+
 
 async def main():
     manager = AsyncRequestManager(parral_amount=2)
@@ -12,12 +15,12 @@ async def main():
         clear_days=60
     )
 
-    connection = await AsyncHttp.create()
+    connection = await AsyncConnection.create()
     for i in range(10):
-        url = 'http://httpbin.org/ip?whatever=1'
-        if i == 5: url = 'http://web_not_exist.org/'   # a fail request
+        url = valid_url
+        if i == 5: url = invalid_url   # a fail request
         request = Request(
-            http_req=connection,
+            http_conn=connection,
             method='GET',
             url=url,
             log_flag=f'req{i}',

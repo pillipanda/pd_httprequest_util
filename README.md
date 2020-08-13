@@ -14,15 +14,16 @@
 7. 支持设定失败请求的默认返回值
 
 ### 概念说明
-下面的使用例子会使用到Request、Connection、RequestManager三个类，先提前说明下其命名的逻辑：<br/>
-每个具体http请求被命名为一个**Request**，其使用的http **Connection** pool是作为参数被依赖注入的，而外层使用RequestManager来管理一堆http request的访问特征
+下面的使用例子会使用到Connection、Request、RequestManager三个类，先提前说明下其命名的逻辑：<br/>
+每个具体http请求被命名为一个**Request**，其使用的http **Connection** pool是作为参数被依赖注入的，而外层使用**RequestManager**来管理一堆http request的访问特征
+![uml](./static/UML.png)
 
 ### 异步访问举例 <br/>
 - 阻塞访问一批请求
 ```python
 # 对应demos/async_demos/all_fetch.py
 from pd_httprequest_util.request import Request
-from pd_httprequest_util.connection.async_ import AsyncHttp
+from pd_httprequest_util.connection.async_ import AsyncConnection
 from pd_httprequest_util.request_manager import AsyncRequestManager
 
 from demos.config import valid_url, invalid_url
@@ -32,14 +33,14 @@ async def main():
     manager = AsyncRequestManager(parral_amount=60, fail_return='')
 
     # 此批访问全部复用此connection
-    connection = await AsyncHttp.create()
+    connection = await AsyncConnection.create()
 
     # 构建100个请求、其中第五个故意设置为无效的url
     for i in range(100):
         url = valid_url
         if i == 5: url = invalid_url
         request = Request(
-            http_req=connection,  # 依赖注入connection，多有request都复用此connection
+            http_conn=connection,  # 依赖注入connection，多有request都复用此connection
             method='GET',
             url=url
         )
@@ -67,7 +68,7 @@ if __name__ == '__main__':
 ```python
 # 对应demos/async_demos/all_fetch_but_stopwhenfirstfail.py
 from pd_httprequest_util.request import Request
-from pd_httprequest_util.connection.async_ import AsyncHttp
+from pd_httprequest_util.connection.async_ import AsyncConnection
 from pd_httprequest_util.request_manager import AsyncRequestManager
 
 from demos.config import valid_url, invalid_url
@@ -77,12 +78,12 @@ async def main():
     # 这里通过设置cancel_if_fail=True参数使得第一个失败便返回
     manager = AsyncRequestManager(parral_amount=2, cancel_if_fail=True)
 
-    connection = await AsyncHttp.create()
+    connection = await AsyncConnection.create()
     for i in range(10):
         url = valid_url
         if i == 5: url = invalid_url
         request = Request(
-            http_req=connection,
+            http_conn=connection,
             method='GET',
             url=url
         )
@@ -102,7 +103,7 @@ if __name__ == '__main__':
 ```python
 # 对应demos/async_demos/iter_fetch.py
 from pd_httprequest_util.request import Request
-from pd_httprequest_util.connection.async_ import AsyncHttp
+from pd_httprequest_util.connection.async_ import AsyncConnection
 from pd_httprequest_util.request_manager import AsyncRequestManager
 
 from demos.config import valid_url, invalid_url
@@ -110,12 +111,12 @@ from demos.config import valid_url, invalid_url
 async def main():
     manager = AsyncRequestManager(parral_amount=4)
 
-    connection = await AsyncHttp.create()
+    connection = await AsyncConnection.create()
     for i in range(10):
         url = valid_url
         if i == 5: url = invalid_url   # a fail request
         request = Request(
-            http_req=connection,
+            http_conn=connection,
             method='GET',
             url=url
         )
@@ -138,24 +139,24 @@ if __name__ == '__main__':
 # 对应demos/async_demos/set_log.py
 from pd_httprequest_util.request import Request
 from pd_httprequest_util.request_manager import AsyncRequestManager
-from pd_httprequest_util.connection.async_ import AsyncHttp
+from pd_httprequest_util.connection.async_ import AsyncConnection
 
 async def main():
     manager = AsyncRequestManager(parral_amount=2)
     # 显式调用set_log方法，设置日志相关参数即打开了日志记录
     manager.set_log(
-        name='http_request_log',
+        name='http_connuest_log',
         dir_path='./',
         clear=True,
         clear_days=60
     )
 
-    connection = await AsyncHttp.create()
+    connection = await AsyncConnection.create()
     for i in range(10):
         url = 'http://httpbin.org/ip?whatever=1'
         if i == 5: url = 'http://web_not_exist.org/'   # a fail request
         request = Request(
-            http_req=connection,
+            http_conn=connection,
             method='GET',
             url=url,
             log_flag=f'req{i}',
@@ -175,12 +176,12 @@ if __name__ == '__main__':
 
 
 ### 同步访问举例<br/>
-**同步访问的核心就是把上面使用的AsyncRequestManager替换为SyncRequestManager,AsyncHttp替换为SyncHttp**
+**同步访问的核心就是把上面使用的AsyncRequestManager替换为SyncRequestManager,AsyncConnection替换为SyncHttp**
 - 阻塞访问一批请求
 ```python
 # 对应demos/sync_demos/all_fetch.py
 from pd_httprequest_util.request import Request
-from pd_httprequest_util.connection.sync_ import SyncHttp
+from pd_httprequest_util.connection.sync_ import SyncConnection
 from pd_httprequest_util.request_manager import SyncRequestManager
 
 from demos.config import valid_url, invalid_url
@@ -189,12 +190,12 @@ from demos.config import valid_url, invalid_url
 def main():
     manager = SyncRequestManager(parral_amount=3, fail_return='')
 
-    connection = SyncHttp.create()
+    connection = SyncConnection.create()
     for i in range(10):
         url = valid_url
         if i == 5: url = invalid_url
         request = Request(
-            http_req=connection,
+            http_conn=connection,
             method='GET',
             url=url
         )

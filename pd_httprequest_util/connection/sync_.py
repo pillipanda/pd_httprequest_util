@@ -1,12 +1,15 @@
 import requests
 
-from pd_httprequest_util.connection.main import HttpReqer
+from pd_httprequest_util.connection.main import HttpConnection
 
 
-class SyncHttp(HttpReqer):
+class SyncConnection(HttpConnection):
     @classmethod
     def create(cls, conn_total_limit=100, limit_per_host=0):
         self = cls()
+        self.limit = conn_total_limit
+        self.limit_per_host = limit_per_host
+
         self._session = requests.session()
         _adapter = requests.adapters.HTTPAdapter(
             pool_connections=conn_total_limit,
@@ -21,10 +24,9 @@ class SyncHttp(HttpReqer):
     def session(self):
         return self._session
 
-    def change_conn(self):
-        if not self._session.closed: return
+    def change_session(self):
         self.close()
-        new_ins = SyncHttp.create(
+        new_ins = self.create(
             conn_total_limit=self.limit,
             limit_per_host=self.limit_per_host
         )

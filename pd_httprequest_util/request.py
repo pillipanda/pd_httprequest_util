@@ -9,12 +9,12 @@ import aiohttp
 import requests
 
 from pd_httprequest_util.utils.log_util import LoggerUtil
-from pd_httprequest_util.connection import HttpReqer
+from pd_httprequest_util.connection import HttpConnection
 
 
 @dataclass
 class Request:
-    http_req: HttpReqer
+    http_conn: HttpConnection
 
     url: str = ''
     method: str = ''
@@ -28,10 +28,6 @@ class Request:
     no_retry: bool = False
 
     log_flag: str = ''  # only set it when u need log & distinguish between requests
-
-    @staticmethod
-    async def req_all(async_tasks_list: []):
-        if not async_tasks_list: return []
 
     async def async_req(self, logger_ins: Optional[LoggerUtil] = None) -> str:
         """
@@ -56,7 +52,7 @@ class Request:
         while try_time < 2:
             try:
                 resp = await aiohttp.client._RequestContextManager(
-                    self.http_req.session._request(
+                    self.http_conn.session._request(
                         self.method,
                         self.url,
                         **kwargs
@@ -73,8 +69,7 @@ class Request:
             except Exception as e:
                 try_time += 1
                 if self.no_retry: return ''
-                traceback_str = traceback.format_exc().replace('\n', '\t')
-                await self.http_req.change_conn()
+                await self.http_conn.change_session()
                 if not logger_ins: continue
                 traceback_str = traceback.format_exc().replace('\n', '\t')
                 logger_ins.warning(
@@ -123,9 +118,9 @@ class Request:
         while try_time < 2:
             start = datetime.now()
             try:
-                resp = self.http_req.session.request(method=self.method,
-                                                     url=self.url,
-                                                     **kwargs).text
+                resp = self.http_conn.session.request(method=self.method,
+                                                      url=self.url,
+                                                      **kwargs).text
             except requests.Timeout:
                 try_time += 1
                 if logger_ins:
@@ -142,6 +137,7 @@ class Request:
                         f'flag:{self.log_flag}|spend:{gap}|context:{self.method}-{self.url}-{self.is_json}-{kwargs}|error:|error_detail:{traceback}'
                     )
                 if self.no_retry: return ''
+                self.http_conn.change_session()
             else:
                 if logger_ins:
                     gap = (datetime.now() - start).microseconds/1000

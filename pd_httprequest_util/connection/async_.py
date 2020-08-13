@@ -2,10 +2,10 @@ import asyncio
 
 from aiohttp import ClientSession, TCPConnector, TraceConfig
 
-from pd_httprequest_util.connection.main import HttpReqer
+from pd_httprequest_util.connection.main import HttpConnection
 
 
-class AsyncHttp(HttpReqer):
+class AsyncConnection(HttpConnection):
     @classmethod
     async def create(cls, conn_total_limit=1000, limit_per_host=0):
         self = cls()
@@ -21,11 +21,11 @@ class AsyncHttp(HttpReqer):
     def session(self):
         return self._session
 
-    async def change_conn(self):
+    async def change_session(self):
         if not self._session.closed: return
         asyncio.ensure_future(self._close_session(self._session))
         await self.close()
-        new_ins = await AsyncHttp.create(conn_total_limit=self.limit, limit_per_host=self.limit_per_host)
+        new_ins = await self.create(conn_total_limit=self.limit, limit_per_host=self.limit_per_host)
         self._session = new_ins.session
 
     def close(self):

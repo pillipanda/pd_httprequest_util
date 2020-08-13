@@ -1,5 +1,5 @@
 from pd_httprequest_util.request import Request
-from pd_httprequest_util.connection.async_ import AsyncHttp
+from pd_httprequest_util.connection.async_ import AsyncConnection
 from pd_httprequest_util.request_manager import AsyncRequestManager
 
 from demos.config import valid_url, invalid_url
@@ -9,14 +9,14 @@ async def main():
     manager = AsyncRequestManager(parral_amount=60, fail_return='')
 
     # 此批访问全部服用此connection
-    connection = await AsyncHttp.create()
+    connection = await AsyncConnection.create()
 
     # 构建100个请求、其中第五个故意设置为无效的url
     for i in range(100):
         url = valid_url
         if i == 5: url = invalid_url
         request = Request(
-            http_req=connection,
+            http_conn=connection,
             method='GET',
             url=url
         )
