@@ -1,0 +1,24 @@
+[tool.poetry]
+name = "pd_httprequest_util"
+version = "0.0.9"
+description = "http request util with both sync/async method.provide with concurrency control；iter retrn；log"
+license = "MIT"
+authors = ["彭泗雄 <pillipanda@126.com>"]
+readme = "PYPI_README.md"
+homepage = "https://github.com/pillipanda/pd_httprequest_util"
+repository = "https://github.com/pillipanda/pd_httprequest_util"
+
+[tool.poetry.dependencies]
+python = "^3.7"
+aiodns = "^2.0.0"
+aiohttp = "^3.6.2"
+ujson = "^3.1.0"
+requests = "^2.24.0"
+loguru = "^0.5.1"
+
+[tool.poetry.dev-dependencies]
+pytest = "^5.2"
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
