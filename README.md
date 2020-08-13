@@ -15,7 +15,7 @@
 
 ### 概念说明
 下面的使用例子会使用到Connection、Request、RequestManager三个类，先提前说明下其命名的逻辑：<br/>
-每个具体http请求被命名为一个**Request**，其使用的http **Connection** pool是作为参数被依赖注入的，而外层使用**RequestManager**来管理一堆http request的访问特征
+每个具体http请求被命名为一个**Request**，其使用的http **Connection** pool是作为参数被依赖注入的，而外层使用**RequestManager**来管理一堆http request的访问特征<br/>
 ![uml](./static/UML.png)
 
 ### 异步访问举例 <br/>
